@@ -2998,6 +2998,8 @@ static ssize_t fastrpc_debugfs_read(struct file *filp, char __user *buffer,
 	char *fileinfo = NULL;
 	char single_line[UL_SIZE] = "----------------";
 	char title[UL_SIZE] = "=========================";
+	single_line[UL_SIZE-1]='\0';
+	title[UL_SIZE-1]='\0';
 
 	fileinfo = kzalloc(DEBUGFS_SIZE, GFP_KERNEL);
 	if (!fileinfo)
@@ -3584,8 +3586,10 @@ static long fastrpc_device_ioctl(struct file *file, unsigned int ioctl_num,
 			mutex_unlock(&fl->perf_mutex);
 
 			if (fperf) {
-				K_COPY_TO_USER(err, 0, (void *)p.perf.data,
-					fperf, sizeof(*fperf));
+				K_COPY_TO_USER(err, 0,
+					(void *)p.perf.data, fperf,
+					sizeof(*fperf) -
+					sizeof(struct hlist_node));			
 			}
 		}
 		K_COPY_TO_USER(err, 0, param, &p.perf, sizeof(p.perf));
